@@ -11,8 +11,9 @@ namespace BlockChain.Models
         public string Data { get; set; }
         public string Author { get; set; }
         public string PrevHash { get; set; }
+        public long Nonce { get; set; } = 0;
 
-        public string Hash { get; set; }
+        public string Hash { get; set; } = string.Empty;
 
         public Block(int index, DateTime timeStamp, string data, string author, string prevHash)
         {

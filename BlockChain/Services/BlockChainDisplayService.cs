@@ -16,6 +16,7 @@ namespace BlockChain.Services
                 Console.WriteLine($"Data: {block.Data}");
                 Console.WriteLine($"Author: {block.Author}");
                 Console.WriteLine($"Previous Hash: {block.PrevHash}");
+                Console.WriteLine($"Nonce: {block.Nonce}");
                 Console.WriteLine($"Hash: {block.Hash}");
                 Console.WriteLine(new string('-', 50) + Environment.NewLine);
             }

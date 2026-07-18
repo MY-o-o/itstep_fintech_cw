@@ -1,3 +1,3 @@
 ## Whiteboard
 
-![WhiteBoard-2026-07-16.svg](WhiteBoard-2026-07-16.svg)
+![WhiteBoard-18-07-2026.excalidraw.svg](WhiteBoard-18-07-2026.excalidraw.svg)

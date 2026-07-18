@@ -1,17 +1,19 @@
 ﻿using BlockChain.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BlockChain.Services
 {
     public class BlockChainService
     {
+        private readonly HashingService _hashingService;
+        private readonly MiningService _miningService;
         public List<Block> Chain { get; set; }
-        private readonly HashingService _hashingService = new HashingService();
+        public int Difficulty { get; set; } = 4;
+        public string TargetPrefix { get; set; } = "cafe"; //cafe, dead, beef, face, bad, bead, feed, 1234, c0de
 
-        public BlockChainService()
+        public BlockChainService(HashingService hashingService, MiningService miningService)
         {
+            _hashingService = hashingService;
+            _miningService = miningService;
             Chain = new List<Block>();
             CreateGenesisBlock();
         }
@@ -20,15 +22,16 @@ namespace BlockChain.Services
         {
             var genesisBlock = new Block(0, DateTime.UtcNow, "Genesis Block", "Genesis Author", "0");
 
-            genesisBlock.Hash = _hashingService.ComputeHash(genesisBlock);
+            _miningService.MineBlock(genesisBlock, Difficulty, showProgress: false);
             Chain.Add(genesisBlock);
         }
 
-        public void AddBlock(string data, string author)
+        public void AddBlock(string data, string author, bool useTargetPrefix = false)
         {
             var lastBlock = Chain.Last();
             var newBlock = new Block(lastBlock.Index + 1, DateTime.UtcNow, data, author, lastBlock.Hash);
-            newBlock.Hash = _hashingService.ComputeHash(newBlock);
+            if (useTargetPrefix) _miningService.MineBlock(newBlock, TargetPrefix);
+            else _miningService.MineBlock(newBlock, Difficulty);
             Chain.Add(newBlock);
         }
 
@@ -40,6 +43,7 @@ namespace BlockChain.Services
                 var previousBlock = Chain[i - 1];
                 if (currentBlock.Hash != _hashingService.ComputeHash(currentBlock)) return false;
                 if (currentBlock.PrevHash != previousBlock.Hash) return false;
+                if (!currentBlock.Hash.StartsWith(new string('0', Difficulty))) return false;
             }
             return true;
         }
