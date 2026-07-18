@@ -14,6 +14,7 @@ namespace BlockChain.Services
                 Console.WriteLine($"Index: {block.Index}");
                 Console.WriteLine($"Timestamp: {block.TimeStamp}");
                 Console.WriteLine($"Data: {block.Data}");
+                Console.WriteLine($"Author: {block.Author}");
                 Console.WriteLine($"Previous Hash: {block.PrevHash}");
                 Console.WriteLine($"Hash: {block.Hash}");
                 Console.WriteLine(new string('-', 50) + Environment.NewLine);

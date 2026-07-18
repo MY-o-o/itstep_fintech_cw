@@ -18,16 +18,16 @@ namespace BlockChain.Services
 
         private void CreateGenesisBlock()
         {
-            var genesisBlock = new Block(0, DateTime.UtcNow, "Genesis Block", "0");
+            var genesisBlock = new Block(0, DateTime.UtcNow, "Genesis Block", "Genesis Author", "0");
 
             genesisBlock.Hash = _hashingService.ComputeHash(genesisBlock);
             Chain.Add(genesisBlock);
         }
 
-        public void AddBlock(string data)
+        public void AddBlock(string data, string author)
         {
             var lastBlock = Chain.Last();
-            var newBlock = new Block(lastBlock.Index + 1, DateTime.UtcNow, data, lastBlock.Hash);
+            var newBlock = new Block(lastBlock.Index + 1, DateTime.UtcNow, data, author, lastBlock.Hash);
             newBlock.Hash = _hashingService.ComputeHash(newBlock);
             Chain.Add(newBlock);
         }

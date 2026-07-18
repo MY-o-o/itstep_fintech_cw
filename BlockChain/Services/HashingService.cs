@@ -9,7 +9,7 @@ namespace BlockChain.Services
     {
         public string ComputeHash(Block block)
         {
-            string input = $"{block.Index}{block.TimeStamp.ToString("o")}{block.Data}{block.PrevHash}";
+            string input = $"{block.Index}{block.TimeStamp.ToString("o")}{block.Data}{block.Author}{block.PrevHash}";
             return ComputeHash(input);
         }
 
