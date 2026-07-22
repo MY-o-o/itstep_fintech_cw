@@ -12,7 +12,7 @@ namespace BlockChain.Services
             foreach (var block in chain)
             {
                 Console.WriteLine($"Index: {block.Index}");
-                Console.WriteLine($"Timestamp: {block.TimeStamp}");
+                Console.WriteLine($"Timestamp: {block.TimeStamp:o}");
                 Console.WriteLine($"Data: {block.Data}");
                 Console.WriteLine($"Author: {block.Author}");
                 Console.WriteLine($"Previous Hash: {block.PrevHash}");

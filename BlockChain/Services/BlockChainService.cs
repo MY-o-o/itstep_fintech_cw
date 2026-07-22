@@ -7,7 +7,7 @@ namespace BlockChain.Services
         private readonly HashingService _hashingService;
         private readonly MiningService _miningService;
         public List<Block> Chain { get; set; }
-        public int Difficulty { get; set; } = 4;
+        public int Difficulty { get; set; } = 6;
         public string TargetPrefix { get; set; } = "cafe"; //cafe, dead, beef, face, bad, bead, feed, 1234, c0de
 
         public BlockChainService(HashingService hashingService, MiningService miningService)
