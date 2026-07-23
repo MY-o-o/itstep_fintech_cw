@@ -8,7 +8,8 @@ namespace BlockChain.Services
         private readonly MiningService _miningService;
         public List<Block> Chain { get; set; }
         public int Difficulty { get; set; } = 6;
-        public string TargetPrefix { get; set; } = "cafe"; //cafe, dead, beef, face, bad, bead, feed, 1234, c0de
+        private readonly int _targetTimePerBlock = 2000; // Target time per block in milliseconds
+        private readonly int _adjustmentInterval = 2; // Number of blocks after which to adjust difficulty
 
         public BlockChainService(HashingService hashingService, MiningService miningService)
         {
@@ -20,19 +21,40 @@ namespace BlockChain.Services
 
         private void CreateGenesisBlock()
         {
-            var genesisBlock = new Block(0, DateTime.UtcNow, "Genesis Block", "Genesis Author", "0");
+            var genesisBlock = new Block(0, "Genesis Block", "Genesis Author", "0", Difficulty);
 
             _miningService.MineBlock(genesisBlock, Difficulty, showProgress: false);
             Chain.Add(genesisBlock);
         }
 
-        public void AddBlock(string data, string author, bool useTargetPrefix = false)
+        public void AddBlock(string data, string author)
         {
             var lastBlock = Chain.Last();
-            var newBlock = new Block(lastBlock.Index + 1, DateTime.UtcNow, data, author, lastBlock.Hash);
-            if (useTargetPrefix) _miningService.MineBlock(newBlock, TargetPrefix);
-            else _miningService.MineBlock(newBlock, Difficulty);
+            var newBlock = new Block(lastBlock.Index + 1, data, author, lastBlock.Hash, Difficulty);
+            _miningService.MineBlock(newBlock, Difficulty);
             Chain.Add(newBlock);
+
+            if (newBlock.Index % _adjustmentInterval == 0)
+            {
+                AdjustDifficulty();
+            }
+        }
+
+        private void AdjustDifficulty()
+        {
+            var lastBlock = Chain.Last();
+            var previousAdjustmentBlock = Chain[Chain.Count - _adjustmentInterval];
+            var actualTimeTaken = (lastBlock.TimeStamp - previousAdjustmentBlock.TimeStamp).TotalMilliseconds;
+            var actualTimeTakenPerBlock = actualTimeTaken / _adjustmentInterval;
+
+            if (actualTimeTakenPerBlock < _targetTimePerBlock)
+            {
+                Difficulty++;
+            }
+            else if (actualTimeTakenPerBlock > _targetTimePerBlock && Difficulty > 1)
+            {
+                Difficulty--;
+            }
         }
 
         public bool IsValid()
@@ -43,7 +65,7 @@ namespace BlockChain.Services
                 var previousBlock = Chain[i - 1];
                 if (currentBlock.Hash != _hashingService.ComputeHash(currentBlock)) return false;
                 if (currentBlock.PrevHash != previousBlock.Hash) return false;
-                if (!currentBlock.Hash.StartsWith(new string('0', Difficulty))) return false;
+                if (!currentBlock.Hash.StartsWith(new string('0', currentBlock.Difficulty))) return false;
             }
             return true;
         }
