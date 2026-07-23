@@ -8,22 +8,27 @@ namespace BlockChain.Models
     {
         public int Index { get; set; }
         public DateTime TimeStamp { get; set; }
-        public string Data { get; set; }
-        public string Author { get; set; }
+        public List<Transaction> Transactions { get; set; } = new List<Transaction>();
         public string PrevHash { get; set; }
         public int Difficulty { get; set; }
         public long Nonce { get; set; } = 0;
         
         public string Hash { get; set; } = string.Empty;
 
-        public Block(int index, string data, string author, string prevHash, int difficulty)
+        public Block(int index, List<Transaction> transactions, string prevHash, int difficulty)
         {
             Index = index;
             TimeStamp = DateTime.UtcNow;
-            Data = data;
-            Author = author;
+            Transactions = transactions;
             PrevHash = prevHash;
             Difficulty = difficulty;
+        }
+
+        public string ToRowString()
+        {
+            string transactionsRow = string.Concat(Transactions.Select(t => t.ToRowString()));
+
+            return $"{Index}{TimeStamp:o}{transactionsRow}{PrevHash}{Difficulty}{Nonce}";
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace BlockChain.Models
 {
-    public class Transaction
+    public class Transaction : ICloneable
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; private set; }
         public string From { get; set; }
         public string To { get; set; }
         public decimal Amount { get; set; }
@@ -21,14 +21,25 @@ namespace BlockChain.Models
             TimeStamp = DateTime.UtcNow;
         }
 
+        public Transaction() : this(string.Empty, string.Empty, 0) { }
+
         public string ToRowString()
         {
-            return $"{Id}\t{From}\t{To}\t{Amount}\t{TimeStamp}";
+            return $"{Id}{From}{To}{Amount}{TimeStamp}";
         }
 
         public override string ToString()
         {
-            return $"Transaction [Id={Id}, From={From}, To={To}, Amount={Amount}, TimeStamp={TimeStamp}]";
+            return $"Transaction [Id={Id}, From={From}, To={To}, Amount={Amount}, TimeStamp={TimeStamp:o}]";
+        }
+
+        public object Clone()
+        {
+            return new Transaction(From, To, Amount)
+            {
+                Id = Id,
+                TimeStamp = TimeStamp
+            };
         }
     }
 }

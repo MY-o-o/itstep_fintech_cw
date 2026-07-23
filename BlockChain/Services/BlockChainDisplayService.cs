@@ -13,13 +13,23 @@ namespace BlockChain.Services
             {
                 Console.WriteLine($"Index: {block.Index}");
                 Console.WriteLine($"Timestamp: {block.TimeStamp:o}");
-                Console.WriteLine($"Data: {block.Data}");
-                Console.WriteLine($"Author: {block.Author}");
                 Console.WriteLine($"Previous Hash: {block.PrevHash}");
                 Console.WriteLine($"Difficulty: {block.Difficulty}");
                 Console.WriteLine($"Nonce: {block.Nonce}");
-                Console.WriteLine($"Hash: {block.Hash}");
+                Console.WriteLine($"Hash: {block.Hash}" + Environment.NewLine);
+
+                Console.WriteLine("Transactions:");
+                DisplayTransactions(block.Transactions);
                 Console.WriteLine(new string('-', 50) + Environment.NewLine);
+            }
+        }
+
+        public static void DisplayTransactions(List<Transaction> transactions)
+        {
+            foreach (var transaction in transactions)
+            {
+                Console.WriteLine(transaction);
+                Console.WriteLine(new string('-', 30));
             }
         }
 

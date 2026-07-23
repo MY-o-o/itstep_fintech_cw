@@ -1,6 +1,9 @@
-﻿using BlockChain.Services;
+﻿using BlockChain.Models;
+using BlockChain.Services;
 using System.Text;
 using System.Text.RegularExpressions;
+
+Console.OutputEncoding = Encoding.UTF8;
 
 static bool IsValidHashPrefix(string input)
 {
@@ -8,13 +11,12 @@ static bool IsValidHashPrefix(string input)
     return Regex.IsMatch(input, @"^[0-9a-fA-F]{1,64}$");
 }
 
-
-
 var hashingService = new HashingService();
 var miningService = new MiningService(hashingService);
-var blockChainService = new BlockChainService(hashingService, miningService);
+var transactionService = new TransactionService();
+var blockChainService = new BlockChainService(hashingService, miningService, transactionService);
 
-Console.OutputEncoding = Encoding.UTF8;
+List<Transaction> pendingTransactions = new List<Transaction>();
 while (true)
 {
     Console.WriteLine("Block Management Menu:");
@@ -23,19 +25,19 @@ while (true)
     Console.WriteLine("3. Validate the blockchain");
     Console.WriteLine("4. Change difficulty ++");
     Console.WriteLine("5. Change difficulty --");
-    Console.WriteLine("6. Exit");
+    Console.WriteLine("6. Add a new transaction");
+    Console.WriteLine("7. Display pending transactions");
+    Console.WriteLine("8. Exit");
     Console.Write("Enter your choice: ");
     var selectedOption = Console.ReadLine();
 
     switch (selectedOption)
     {
         case "1":
-            Console.Write("Enter block data: ");
-            var data = Console.ReadLine();
-            Console.Write("Enter block author: ");
-            var author = Console.ReadLine();
+            blockChainService.AddBlock(pendingTransactions);
+            pendingTransactions.Clear();
 
-            blockChainService.AddBlock(data, author);
+            Console.WriteLine("Block added!");
             break;
         case "2":
             BlockChainDisplayService.DisplayBlockChain(blockChainService.Chain);
@@ -56,6 +58,26 @@ while (true)
             else Console.WriteLine("Difficulty cannot be less than 1.");
             break;
         case "6":
+            pendingTransactions.Add(new Transaction("Alice", "Bob", 100));
+
+            //Console.Write("Enter transaction data: ");
+            //var transactionData = Console.ReadLine();
+            //if (!string.IsNullOrEmpty(transactionData))
+            //{
+            //    var transaction = new Transaction(transactionData);
+            //    pendingTransactions.Add(transaction);
+            //    Console.WriteLine("Transaction added to pending transactions.");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Transaction data cannot be empty.");
+            //}
+            break;
+        case "7":
+            if (pendingTransactions.Count == 0) Console.WriteLine("No pending transactions.");
+            else BlockChainDisplayService.DisplayTransactions(pendingTransactions);
+            break;
+        case "8":
             return;
         default:
             Console.WriteLine("Invalid option. Please try again.");

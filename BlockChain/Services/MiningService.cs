@@ -1,6 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using BlockChain.Models;
+using System.Collections.Concurrent;
 using System.Diagnostics;
-using BlockChain.Models;
+using System.Transactions;
 
 namespace BlockChain.Services;
 
@@ -20,12 +21,12 @@ public class MiningService
     {
         ArgumentOutOfRangeException.ThrowIfNegative(difficulty);
         ArgumentNullException.ThrowIfNull(block);
+
         string targetPrefix = new string('0', difficulty);
 
-        // The data that precedes the nonce cannot change while this block is mined.
-        // Each worker only creates its own candidate input, so Block is never shared
-        // mutably between threads.
-        string blockPrefix = $"{block.Index}{block.TimeStamp:o}{block.Data}{block.Author}{block.PrevHash}{block.Difficulty}";
+        string transactionsRow = string.Concat(block.Transactions.Select(t => t.ToRowString()));
+        string blockPrefix = $"{block.Index}{block.TimeStamp:o}{transactionsRow}{block.PrevHash}{block.Difficulty}";
+
         long attempts = 0;
         long winningNonce = -1;
         string? winningHash = null;
