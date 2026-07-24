@@ -1,4 +1,6 @@
-﻿using BlockChain.Models;
+﻿using BlockChain.Components;
+using BlockChain.Models;
+using Spectre.Console;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Transactions;
@@ -8,7 +10,6 @@ namespace BlockChain.Services;
 public class MiningService
 {
     private const long RangeSize = 50_000;
-    private static readonly char[] LoaderFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠇', '⠏'];
     private static readonly char[] MeasureUnits = [' ', 'k', 'M', 'G', 'T', 'P', 'E'];
     private readonly HashingService _hashingService;
 
@@ -135,29 +136,45 @@ public class MiningService
         Stopwatch stopwatch,
         CancellationToken cancellationToken)
     {
-        short frameIndex = 0;
-        TimeSpan el = TimeSpan.Zero;
         try
         {
-            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(300));
-            while (await timer.WaitForNextTickAsync(cancellationToken))
-            {
-                Console.Clear();
-                long attempts = getAttempts();
-                var (hashRate, measureUnitIndex, timeTaken) = CalculateStatistics(attempts, stopwatch.Elapsed);
+            var progress = AnsiConsole.Progress()
+            .Columns(
+                new SpinnerColumn(new MinerSpinner())
+                {
+                    Style = new Style(Color.Orange1)
+                },
+                new TaskDescriptionColumn()
+                {
+                    Wrap = true,
+                    Alignment = Justify.Left
+                });
+            progress.AutoClear = true;
 
-                Console.Write($"{LoaderFrames[frameIndex++ % LoaderFrames.Length]}");
-                string textToRight = $"{hashRate:F2} {MeasureUnits[measureUnitIndex]}H/s | {attempts:N0} attempts | {timeTaken}\r";
-                Console.SetCursorPosition(textToRight.Length > Console.WindowWidth ? 0 : Console.WindowWidth - textToRight.Length, Console.CursorTop);
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write(textToRight);
-                Console.ResetColor();
-            }
+            await progress.StartAsync(async ctx =>
+            {
+                var task = ctx.AddTask("⛏ [bold orange1]Mining[/] [grey]in progress...[/]", maxValue: 100);
+                var task2 = ctx.AddTask("[bold cyan]▣ Statistics[/]", maxValue: 0);
+
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    long attempts = getAttempts();
+                    var (hashRate, measureUnitIndex, timeTaken) =
+                        CalculateStatistics(attempts, stopwatch.Elapsed);
+
+                    task2.Description =
+                        $"[gray][bold green]{hashRate:F2} {MeasureUnits[measureUnitIndex]}H/s[/] | [bold white]{attempts:N0} attempts[/] | [bold cyan]{timeTaken}[/][/]";
+
+                    await Task.Delay(100, cancellationToken);
+                }
+            });
         }
         catch (OperationCanceledException)
         {
             Console.Clear();
-            Console.WriteLine("\rMining completed.");
+            Console.WriteLine("Mining completed.");
         }
+
+        
     }
 }

@@ -2,6 +2,7 @@
 using BlockChain.Services;
 using System.Text;
 using System.Text.RegularExpressions;
+using Spectre.Console;
 
 Console.OutputEncoding = Encoding.UTF8;
 
